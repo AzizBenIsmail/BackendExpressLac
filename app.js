@@ -8,6 +8,8 @@ const http = require('http'); //1 importation du module http
 
 require('dotenv').config();
 
+const { connectToMongoDB } = require('./db/db');
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
@@ -20,7 +22,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-app.use('/', indexRouter);
+app.use('/index', indexRouter);
 app.use('/users', usersRouter);
 
 // catch 404 and forward to error handler
@@ -43,5 +45,6 @@ const server = http.createServer(app); //2 creation du serveur
 
 //3 le serveur ecoute sur le port 5000
 server.listen(process.env.Port, () => {
+  connectToMongoDB();
   console.log('Server is running on port 5000');
 });
