@@ -6,6 +6,8 @@ var logger = require('morgan');
 
 const http = require('http'); //1 importation du module http
 
+require('dotenv').config();
+
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
@@ -33,16 +35,13 @@ app.use(function(err, req, res, next) {
   res.locals.error = req.app.get('env') === 'development' ? err : {};
 
   // render the error page
-  res.status(err.status || 500);
-  res.render('error');
+  res.status(err.status || 500)
+  res.json('error');
 });
 
 const server = http.createServer(app); //2 creation du serveur
 
-//
-//mongodb+srv://aziz270700_db_aziz:2N3WVF1jgupQ3bXI@cluster0.lgz0ccx.mongodb.net/
-
 //3 le serveur ecoute sur le port 5000
-server.listen(5000, () => {
+server.listen(process.env.Port, () => {
   console.log('Server is running on port 5000');
 });
