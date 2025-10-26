@@ -10,7 +10,8 @@ const userSchema = new mongoose.Schema({
     role : {type : String , enum : ['admin' , 'client'] , default : 'user'},
     age: Number,
     Status : Boolean,
-
+    //car: { type: mongoose.Schema.Types.ObjectId, ref: 'Car' }, //One
+    cars: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Car' }], //Many
     //client
     NumTel : Number,
     Adresse : String,
@@ -18,6 +19,8 @@ const userSchema = new mongoose.Schema({
     //Admin
     adminCode : String,
 
+    //professor
+    //students : [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] //Many
 
 
 }, {timestamps : true});

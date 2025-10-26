@@ -10,6 +10,7 @@ router.get('/getAllUsers', userController.getAllUsers);
 router.get('/getClient', userController.getClient);
 router.get('/getAdmin', userController.getAdmin);
 router.get('/getUser18', userController.getUser18);
+router.get('/getUserById/:id', userController.getUserById);
 router.get('/getUserIntervalAge', userController.getUserIntervalAge);
 router.get('/getMoyAgeClient', userController.getMoyAgeClient);
 router.get('/getUserNameE', userController.getUserNameE);

@@ -1,4 +1,5 @@
 const carModel = require('../models/carSchema');
+const userModel = require('../models/userSchema');
 
 // Create a new car
 module.exports.createCar = async (req, res) => {
@@ -16,6 +17,57 @@ module.exports.createCar = async (req, res) => {
     res.status(500).json({ message: 'Server error', error });
   } 
 };
+
+module.exports.createCarWithOwner = async (req, res) => {
+  try {
+    const { brand, model, year, price , owner_Id} = req.body;
+    const newCar = new carModel({
+      brand,
+      model,
+      year,
+      price,
+      owner : owner_Id
+    });
+    
+    const addedCar = await newCar.save();
+    
+    await userModel.findByIdAndUpdate(owner_Id, { $push: { cars: addedCar._id } });
+    res.status(201).json({ newCar, message: 'Car created successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  } 
+};
+
+module.exports.SellCar = async (req, res) => {
+  try {
+    const { car_id, owner_Id} = req.body;
+
+    await carModel.findByIdAndUpdate(car_id, { owner : owner_Id });
+    
+    await userModel.findByIdAndUpdate(owner_Id, { $push: { cars: car_id } });
+    res.status(201).json({ newCar, message: 'Car created successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  } 
+};
+
+module.exports.SellCar2 = async (req, res) => {
+  try {
+    const { old_Onwer_Id,car_id, New_Owner_Id} = req.body;
+
+    await userModel.findByIdAndUpdate(old_Onwer_Id, { $pull: { cars: car_id } });
+
+    await carModel.findByIdAndUpdate(car_id, { owner : New_Owner_Id });
+    
+    await userModel.findByIdAndUpdate(New_Owner_Id, { $push: { cars: car_id } });
+    
+    res.status(201).json({ newCar, message: 'Car created successfully' });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+  } 
+};
+
+
 
 module.exports.createManyCar = async (req, res) => {
 try {
@@ -39,7 +91,7 @@ module.exports.updateCarByID = async (req, res) => {
    // const {id} = req.params;
     const updatedData = req.body;
 
-    const car = await carModel.findById(carId);
+    const car = await carModel.findById(carId)
     if (!car) {
       return res.status(404).json({ message: 'Car not found' });
     }
@@ -54,7 +106,7 @@ module.exports.updateCarByID = async (req, res) => {
 module.exports.getCarById = async (req, res) => {
     try {
         const carId = req.params.id;
-        const car = await carModel.findById(carId);
+        const car = await carModel.findById(carId).populate('owner');;
         if (!car) {
             return res.status(404).json({ message: 'Car not found' });
         }
@@ -122,3 +174,19 @@ module.exports.getMostRecentAndCheapestCarByBrand = async (req, res) => {
     });
   }
 };
+
+
+module.exports.deleteCarById = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const car = await carModel.findByIdAndDelete(id);
+
+    await userModel.updateMany({ cars: id }, { $pull: { cars: id } }); //user : [cars] many
+    
+    await userModel.updateMany({ cars: id }, { $set: { car: null } }); //user car 1 one
+
+    res.status(200).json({ message: "Car deleted successfully", car });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+}; 
