@@ -17,6 +17,22 @@ module.exports.createCar = async (req, res) => {
   } 
 };
 
+module.exports.createManyCar = async (req, res) => {
+try {
+    const carsData = req.body; // Expecting an array of car objects
+
+    if (!Array.isArray(carsData) || carsData.length === 0) {
+        return res.status(400).json({ message: 'Invalid data format. Expected an array of car objects.' });
+    }
+
+    const newCars = await carModel.insertMany(carsData);
+
+    res.status(201).json({ newCars, message: 'Cars created successfully' });
+} catch (error) {
+    res.status(500).json({ message: 'Server error', error });
+}
+}
+
 module.exports.updateCarByID = async (req, res) => {
   try {
     const carId = req.params.id;
@@ -38,7 +54,7 @@ module.exports.updateCarByID = async (req, res) => {
 module.exports.getCarById = async (req, res) => {
     try {
         const carId = req.params.id;
-        const car = await carModel.findById(carId).sort({ year: -1 }).limited(1);
+        const car = await carModel.findById(carId);
         if (!car) {
             return res.status(404).json({ message: 'Car not found' });
         }
@@ -61,3 +77,48 @@ module.exports.getAllCar = async (req, res) => {
 };
 
 
+module.exports.searchCarByModel = async (req, res) => {
+    try {
+        const { brand } = req.body;
+        const cars = await carModel.find({ brand: { $regex: brand, $options: "i" } });
+        if (!cars) {
+            return res.status(404).json({ message: "No cars found for this model" });
+        }
+        res.json(cars);
+    }
+    catch (error) {
+        res.status(500).json({ message: "Server Error", error });
+    }
+};
+
+module.exports.getMostRecentAndCheapestCarByBrand = async (req, res) => {
+  try {
+    const { brand } = req.body;
+
+    // Récupère toutes les voitures de la marque
+    const cars = await carModel.find({ brand });
+
+    if (!cars || cars.length === 0) {
+      return res.status(404).json({ message: `No cars found for brand: ${brand}` });
+    }
+
+    // On trouve la voiture la plus récente
+    const mostRecentYear = Math.max(...cars.map(car => car.year));
+
+    // Parmi les voitures les plus récentes, on prend la moins chère
+    const candidates = cars.filter(car => car.year === mostRecentYear);
+    const bestCar = candidates.reduce((prev, curr) => prev.price < curr.price ? prev : curr);
+
+    res.status(200).json({
+      brand,
+      bestCar
+    });
+
+  } catch (error) {
+    console.error("Error fetching brand data:", error);
+    res.status(500).json({
+      message: "Server error while fetching cars by brand",
+      error: error.message
+    });
+  }
+};
