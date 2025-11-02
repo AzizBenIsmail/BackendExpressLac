@@ -3,13 +3,15 @@ var router = express.Router();
 const userController = require('../controllers/userController');
 const uploadfile = require('../middlewares/uploadfile');
 const { requireAuthUser } = require('../middlewares/authMiddlewares');
+const { ControledAcces } = require('../middlewares/AccessControllers');
+const  authLogMiddleware = require('../middlewares/authLogMiddleware');
 //router.use(requireAuthUser);
 /* GET users listing. */
 router.post('/login', userController.login);
 router.post('/createClient', userController.createClient);
 router.post('/createClientWithImg',requireAuthUser,uploadfile.single("image_User"), userController.createClientWithImg);
 router.post('/createAdmin', userController.createAdmin);
-router.get('/getAllUsers',requireAuthUser, userController.getAllUsers);
+router.get('/getAllUsers',authLogMiddleware,requireAuthUser,ControledAcces,userController.getAllUsers);
 router.get('/getClient', userController.getClient);
 router.get('/getAdmin', userController.getAdmin);
 router.get('/getUser18', userController.getUser18);
