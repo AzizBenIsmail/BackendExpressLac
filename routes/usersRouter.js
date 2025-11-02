@@ -3,6 +3,7 @@ var router = express.Router();
 const userController = require('../controllers/userController');
 const uploadfile = require('../middlewares/uploadfile');
 /* GET users listing. */
+router.post('/login', userController.login);
 router.post('/createClient', userController.createClient);
 router.post('/createClientWithImg',uploadfile.single("image_User"), userController.createClientWithImg);
 router.post('/createAdmin', userController.createAdmin);
