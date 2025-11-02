@@ -202,7 +202,7 @@ module.exports.getUserById = async (req, res) => {
 };
 
 const jwt = require("jsonwebtoken");
-const maxxAge = 1* 60;
+const maxxAge = 1* 60 *60;
 
 const createToken = (id) => {
   return jwt.sign({ id },"net secret 9antra", {
@@ -224,4 +224,24 @@ module.exports.login = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+}
+
+module.exports.getUseAuth = async (req, res) => {
+  try {
+    const id  = req.user._id;
+    const user = await userModel.findById(id).populate("cars");
+    res.status(200).json(user);
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error });
+  }
+};
+
+module.exports.logout = (req, res) => {
+try {
+    //res.cookie("jwt", "", { maxAge: 1 });
+    res.clearCookie("jwt");
+    res.status(200).json({ message: "Logout successful" });
+} catch (error) {
+  res.status(500).json({ message: "Server error", error });
+}
 }
