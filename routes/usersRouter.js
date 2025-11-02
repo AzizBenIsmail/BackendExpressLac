@@ -8,6 +8,7 @@ const  authLogMiddleware = require('../middlewares/authLogMiddleware');
 //router.use(requireAuthUser);
 /* GET users listing. */
 router.post('/login', userController.login);
+router.get('/logout', userController.logout);
 router.post('/createClient', userController.createClient);
 router.post('/createClientWithImg',requireAuthUser,uploadfile.single("image_User"), userController.createClientWithImg);
 router.post('/createAdmin', userController.createAdmin);

@@ -6,6 +6,7 @@ const carSchema = new mongoose.Schema({
     year:Number,
     price: Number,
     owner : { type: mongoose.Schema.Types.ObjectId, ref: 'User' } ,//One
+    
     //owners : [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }] //Many
 
 });
